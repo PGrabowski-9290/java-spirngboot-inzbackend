@@ -45,7 +45,7 @@ public class SecurityConfig {
     protected SecurityWebFilterChain securityFilterChain(ServerHttpSecurity http,CorsConfigurationSource corsConfigurationSource){
         return http
                 .authorizeExchange(auth -> {
-                    auth.pathMatchers(HttpMethod.POST, "/auth/login").permitAll();
+                    auth.pathMatchers(HttpMethod.POST, "/auth/login", "/auth/newAccount").permitAll();
                     auth.pathMatchers(HttpMethod.GET, "/auth/refresh").permitAll();
                     auth.anyExchange().authenticated();
                 })
