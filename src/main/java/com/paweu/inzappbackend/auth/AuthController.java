@@ -1,9 +1,12 @@
 package com.paweu.inzappbackend.auth;
 
-import com.paweu.inzappbackend.auth.refresh.ReqestRefresh;
+import com.paweu.inzappbackend.auth.newaccount.RequestNewAccount;
+import com.paweu.inzappbackend.auth.refresh.RequestRefresh;
 import com.paweu.inzappbackend.auth.refresh.ResponseRefresh;
-import com.paweu.inzappbackend.auth.register.ResponseRegister;
-import com.paweu.inzappbackend.db.IUserRepository;
+import com.paweu.inzappbackend.auth.newaccount.ResponseNewAccount;
+import com.paweu.inzappbackend.models.ReqResp.Resp;
+import com.paweu.inzappbackend.service.AuthService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
@@ -11,16 +14,18 @@ import reactor.core.publisher.Mono;
 @RequestMapping("/auth")
 public class AuthController {
 
-    private IUserRepository userRepository;
-    AuthController(IUserRepository userRepository) {
-        this.userRepository = userRepository;
+    private AuthService authService;
+    AuthController(AuthService authService) {
+        this.authService = authService;
     }
 
     @PostMapping("/newAccount")
-    public Mono<ResponseRegister> newAccount()
+    public Mono<ResponseEntity<Resp<?>>> newAccount(@RequestBody RequestNewAccount user){
+        return authService.register(user.email(), user.name(), user.password(),user.role());
+    }
 
     @PostMapping("/test")
-    public Mono<ResponseRefresh> test(@RequestBody ReqestRefresh model) {
+    public Mono<ResponseRefresh> test(@RequestBody RequestRefresh model) {
         return Mono.just( new ResponseRefresh(model.text(), model.id()));
     }
 }

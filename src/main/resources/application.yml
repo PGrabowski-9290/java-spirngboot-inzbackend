@@ -3,7 +3,8 @@ spring:
     mongodb:
       database: "testdb-java"
       #for uri configuration
-      uri: #your uri to db
+      uri: mongodb://localhost:27017/DEV-APP
+      auto-index-creation: true
 jwt:
   secretToken: "secret-token-256-aes"
   refreshToken: "refresh-token-256-aes"
