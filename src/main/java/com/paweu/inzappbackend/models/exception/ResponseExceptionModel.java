@@ -1,6 +1,6 @@
 package com.paweu.inzappbackend.models.exception;
 
-public class ResponseExceptionModel extends Throwable {
+public class ResponseExceptionModel extends Exception {
     private final String msg;
     private final int statusCode;
 
