@@ -13,6 +13,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Mono;
 
+import java.util.Objects;
+
 @Service
 public class AuthService {
 
@@ -27,14 +29,16 @@ public class AuthService {
     }
 
     public Mono<ResponseEntity<Resp<?>>> register(String email, String name, String password, String role){
+        if (email == null || name == null || password == null || role == null)
+            return Mono.error(new ResponseExceptionModel("Brak wymaganych pól", 400));
         if (email.isEmpty() || name.isEmpty() || password.isEmpty() || role.isEmpty())
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Brak wymaganych pol");
+            return Mono.error(new ResponseExceptionModel("Brak wymaganych pól", 400));
 
 
         UserModel user = new UserModel(email,name, role, password);
-        
+
         return userRepository.save(user)
-                .onErrorResume(throwable -> Mono.error(new ResponseExceptionModel(throwable.getMessage(),400)))
+                .onErrorResume(throwable -> Mono.error(new ResponseExceptionModel("Error on save user to db",400)))
                 .thenReturn(ResponseEntity.ok().body(new Resp<ResponseNewAccount>("Success", new ResponseNewAccount("Utworzono"))));
 
     }
