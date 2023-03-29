@@ -4,6 +4,7 @@ import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
 
 @Document(collection = "users")
 public class UserModel {
@@ -11,13 +12,17 @@ public class UserModel {
     @Id
     private ObjectId _id;
     @Indexed(unique = true)
+    @Field
     private String email;
     private String name;
     private String role;
+    @Field
     private Boolean isSuperAdmin;
     private String password;
     private String refreshToken;
+    @Field
     private Boolean isActive;
+
 
     public UserModel(){}
 

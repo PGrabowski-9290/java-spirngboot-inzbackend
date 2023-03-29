@@ -1,5 +1,7 @@
 package com.paweu.inzappbackend.auth;
 
+import com.paweu.inzappbackend.auth.login.RequestLogin;
+import com.paweu.inzappbackend.auth.login.ResponseLogin;
 import com.paweu.inzappbackend.auth.newaccount.RequestNewAccount;
 import com.paweu.inzappbackend.auth.refresh.RequestRefresh;
 import com.paweu.inzappbackend.auth.refresh.ResponseRefresh;
@@ -22,6 +24,11 @@ public class AuthController {
     @PostMapping("/newAccount")
     public Mono<ResponseEntity<Resp<?>>> newAccount(@RequestBody RequestNewAccount user){
         return authService.register(user.email(), user.name(), user.password(),user.role());
+    }
+
+    @PostMapping("/login")
+    public Mono<ResponseEntity<Resp<ResponseLogin>>> login(@RequestBody RequestLogin data){
+        return  authService.login(data.email(), data.password());
     }
 
     @PostMapping("/test")

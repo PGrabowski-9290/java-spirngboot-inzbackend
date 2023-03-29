@@ -1,5 +1,6 @@
 package com.paweu.inzappbackend.service;
 
+import com.paweu.inzappbackend.auth.login.ResponseLogin;
 import com.paweu.inzappbackend.auth.newaccount.ResponseNewAccount;
 import com.paweu.inzappbackend.db.IUserRepository;
 import com.paweu.inzappbackend.db.models.UserModel;
@@ -32,7 +33,6 @@ public class AuthService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    //todo użyj bcrypta do zahashowania hasła bo obecnie masz plaintext
     public Mono<ResponseEntity<Resp<?>>> register(String email, String name, String password, String role){
         if (email.isEmpty() || name.isEmpty() || password.isEmpty() || role.isEmpty())
             return Mono.error(new ResponseExceptionModel("Brak wymaganych pól", 400));
@@ -45,6 +45,23 @@ public class AuthService {
                 .onErrorResume(throwable -> Mono.error(new ResponseExceptionModel("Error on save user to db",400)))
                 .thenReturn(ResponseEntity.ok().body(new Resp<ResponseNewAccount>("Success", new ResponseNewAccount("Utworzono"))));
 
+    }
+
+    public Mono<ResponseEntity<Resp<ResponseLogin>>> login(String email, String password){
+        if( email.isBlank() || password.isBlank()) {
+            return Mono.error(new ResponseExceptionModel("Brak wymaganych pól", 400));
+        }
+
+        return dbUsersService.getUser(email)
+                .onErrorResume(throwable -> Mono.error(new ResponseExceptionModel("Brak użytkownika o podanym adresie", 404)))
+                .map(userDto -> {
+                    if (!passwordEncoder.matches(password, userDto.getPassword())){
+                        Mono.error(new ResponseExceptionModel("Hasło niepoprawne", 401));
+                    }
+
+                    return new ResponseEntity<Resp<ResponseLogin>>(new Resp<ResponseLogin>("Zalogowano",
+                            new ResponseLogin("Zalogowano", "Tu bedzie accesstoken", userDto.getRole())), HttpStatus.OK);
+                });
     }
 
 }
