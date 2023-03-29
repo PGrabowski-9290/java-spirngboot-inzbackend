@@ -20,6 +20,13 @@ public class UserModel {
     private Boolean isActive;
 
     public UserModel(){}
+
+    public UserModel(String email, String name, String role){
+        this.email = email;
+        this.name = name;
+        this.role = role;
+    }
+
     public UserModel(String email, String name, String role, String password){
         this.email = email;
         this.name = name;
