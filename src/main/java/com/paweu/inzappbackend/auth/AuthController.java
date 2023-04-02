@@ -3,11 +3,9 @@ package com.paweu.inzappbackend.auth;
 import com.paweu.inzappbackend.auth.login.RequestLogin;
 import com.paweu.inzappbackend.auth.login.ResponseLogin;
 import com.paweu.inzappbackend.auth.newaccount.RequestNewAccount;
-import com.paweu.inzappbackend.auth.refresh.RequestRefresh;
-import com.paweu.inzappbackend.auth.refresh.ResponseRefresh;
-import com.paweu.inzappbackend.auth.newaccount.ResponseNewAccount;
 import com.paweu.inzappbackend.models.ReqResp.Resp;
 import com.paweu.inzappbackend.service.AuthService;
+import com.paweu.inzappbackend.service.JwtService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
@@ -16,7 +14,7 @@ import reactor.core.publisher.Mono;
 @RequestMapping("/auth")
 public class AuthController {
 
-    private AuthService authService;
+    private final AuthService authService;
     AuthController(AuthService authService) {
         this.authService = authService;
     }
@@ -27,12 +25,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public Mono<ResponseEntity<Resp<ResponseLogin>>> login(@RequestBody RequestLogin data){
+    public Mono<ResponseEntity<Resp<?>>> login(@RequestBody RequestLogin data){
         return  authService.login(data.email(), data.password());
-    }
-
-    @PostMapping("/test")
-    public Mono<ResponseRefresh> test(@RequestBody RequestRefresh model) {
-        return Mono.just( new ResponseRefresh(model.text(), model.id()));
     }
 }

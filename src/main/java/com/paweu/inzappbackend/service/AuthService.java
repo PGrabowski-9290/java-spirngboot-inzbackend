@@ -12,10 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Mono;
-
-import java.util.Objects;
 
 @Service
 public class AuthService {
@@ -26,11 +23,14 @@ public class AuthService {
 
     private final PasswordEncoder passwordEncoder;
 
-    public AuthService(IUserRepository userRepository, ReactiveMongoTemplate reactiveMongoTemplate, DbUsersService dbUsersService, PasswordEncoder passwordEncoder) {
+    private final JwtService jwtService;
+
+    public AuthService(IUserRepository userRepository, ReactiveMongoTemplate reactiveMongoTemplate, DbUsersService dbUsersService, PasswordEncoder passwordEncoder, JwtService jwtService) {
         this.userRepository = userRepository;
         this.reactiveMongoTemplate = reactiveMongoTemplate;
         this.dbUsersService = dbUsersService;
         this.passwordEncoder = passwordEncoder;
+        this.jwtService = jwtService;
     }
 
     public Mono<ResponseEntity<Resp<?>>> register(String email, String name, String password, String role){
@@ -47,20 +47,21 @@ public class AuthService {
 
     }
 
-    public Mono<ResponseEntity<Resp<ResponseLogin>>> login(String email, String password){
+    public Mono<ResponseEntity<Resp<?>>> login(String email, String password){
         if( email.isBlank() || password.isBlank()) {
             return Mono.error(new ResponseExceptionModel("Brak wymaganych pól", 400));
         }
-
+//TODO tu się błąd nie rzuca trza poprawić
         return dbUsersService.getUser(email)
-                .onErrorResume(throwable -> Mono.error(new ResponseExceptionModel("Brak użytkownika o podanym adresie", 404)))
-                .map(userDto -> {
-                    if (!passwordEncoder.matches(password, userDto.getPassword())){
-                        Mono.error(new ResponseExceptionModel("Hasło niepoprawne", 401));
+            .onErrorResume(throwable -> Mono.error(new ResponseExceptionModel("Brak użytkownika o podanym adresie", 404)))
+                .handle((userDto, sink) -> {
+                    if (!passwordEncoder.matches(password, userDto.getPassword())) {
+                        sink.error(new ResponseExceptionModel("Hasło niepoprawne", 401));
+                        return;
                     }
 
-                    return new ResponseEntity<Resp<ResponseLogin>>(new Resp<ResponseLogin>("Zalogowano",
-                            new ResponseLogin("Zalogowano", "Tu bedzie accesstoken", userDto.getRole())), HttpStatus.OK);
+                    sink.next(ResponseEntity.ok().body(new Resp<ResponseLogin>("Zalogoawano",
+                            new ResponseLogin("zalogowano", jwtService.generateAccessToken(userDto.getEmail(), userDto.getRole()), userDto.getRole()))));
                 });
     }
 
