@@ -9,7 +9,9 @@ public class UserDto {
 
     private String refreshToken = "";
     private String password;
+//todo dodanie flagi is Active rónież dla modelu response
 
+    private Boolean isActive;
 
     public UserDto(){
 
@@ -27,6 +29,7 @@ public class UserDto {
         this.name = userModel.getName();
         this.refreshToken = userModel.getRefreshToken();
         this.password = userModel.getPassword();
+        this.isActive = userModel.getActive();
     }
 
     public String getEmail() {
@@ -67,5 +70,13 @@ public class UserDto {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public Boolean getActive() {
+        return this.isActive;
+    }
+
+    public void setActive(Boolean active) {
+        this.isActive = active;
     }
 }

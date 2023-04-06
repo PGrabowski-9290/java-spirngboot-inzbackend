@@ -1,5 +1,6 @@
 package com.paweu.inzappbackend.errorhandling;
 
+import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.paweu.inzappbackend.models.exception.ResponseExceptionModel;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -10,6 +11,15 @@ import org.springframework.web.reactive.result.method.annotation.ResponseEntityE
 
 @ControllerAdvice
 public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
+
+    //handle 401
+    @ExceptionHandler({TokenExpiredException.class})
+    public ResponseEntity<Object> handleTokenExpired(final TokenExpiredException ex){
+        logger.info("Token expired");
+        final ApiError apiError = new ApiError(HttpStatus.UNAUTHORIZED, "token wygasł", ex.getMessage());
+        return new ResponseEntity<Object>(apiError, new HttpHeaders(), apiError.getStatus());
+    }
+
     //handle null exception
     @ExceptionHandler({NullPointerException.class})
     public ResponseEntity<Object> handleResponseNullExceptnion(final NullPointerException ex) {

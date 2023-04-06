@@ -2,7 +2,9 @@ package com.paweu.inzappbackend.service;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTCreator;
+import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.interfaces.DecodedJWT;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -42,6 +44,22 @@ public class JwtService {
                 accessTokenExpires,
                 Algorithm.HMAC512(secretAccessToken)
         );
+    }
+
+    public String getUserEmail(String token){
+        return JWT.require(Algorithm.HMAC512(secretAccessToken))
+                .build()
+                .verify(token)
+                .getSubject();
+    }
+
+    public Boolean isValidAccess(String token, String email) {
+        DecodedJWT decodedJWT = JWT.require(Algorithm.HMAC512(secretAccessToken))
+                .withClaimPresence("sub")
+                .build()
+                .verify(token);
+
+        return decodedJWT.getSubject().equalsIgnoreCase(email);
     }
 
 }

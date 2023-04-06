@@ -18,6 +18,7 @@ import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
 @EnableWebFluxSecurity
 public class SecurityConfig {
 
+
     public @Bean
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
@@ -50,6 +51,8 @@ public class SecurityConfig {
 
     @Bean
     protected SecurityWebFilterChain securityFilterChain(ServerHttpSecurity http,CorsConfigurationSource corsConfigurationSource){
+
+
         return http
                 .authorizeExchange(auth -> {
                     auth.pathMatchers(HttpMethod.POST, "/auth/login", "/auth/newAccount").permitAll();
