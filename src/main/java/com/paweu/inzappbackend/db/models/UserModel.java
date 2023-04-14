@@ -92,7 +92,7 @@ public class UserModel {
     }
 
     public Boolean getActive() {
-        return isActive;
+        return this.isActive != null ? this.isActive : false;
     }
 
     public void setActive(Boolean active) {
