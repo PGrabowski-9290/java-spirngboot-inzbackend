@@ -1,6 +1,5 @@
 package com.paweu.inzappbackend.security;
 
-import com.paweu.inzappbackend.models.dto.UserDto;
 import com.paweu.inzappbackend.models.exception.ResponseExceptionModel;
 import com.paweu.inzappbackend.service.DbUsersService;
 import com.paweu.inzappbackend.service.JwtService;
@@ -35,7 +34,7 @@ public class AuthManager implements ReactiveAuthenticationManager {
                             return Mono.error(new ResponseExceptionModel("Użytkownik nieaktywny", 401));
                         }
 
-                        if (jwtService.isValidAccess(auth.getCredentials(), u.getEmail())){
+                        if (jwtService.isValidToken(auth.getCredentials())){
                             return Mono.just(new UsernamePasswordAuthenticationToken(u.getUsername(), u.getPassword(), u.getAuthorities()));
                         }
 

@@ -7,27 +7,29 @@ import com.paweu.inzappbackend.db.models.UserModel;
 import com.paweu.inzappbackend.models.ReqResp.Resp;
 
 import com.paweu.inzappbackend.models.exception.ResponseExceptionModel;
+import io.netty.handler.codec.http.cookie.Cookie;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
+import reactor.netty.http.Cookies;
 
 @Service
 public class AuthService {
 
     private final IUserRepository userRepository;
-    private final ReactiveMongoTemplate reactiveMongoTemplate;
     private final DbUsersService dbUsersService;
-
     private final PasswordEncoder passwordEncoder;
-
     private final JwtService jwtService;
+    @Value("${jwt.expires.refToken}")
+    private long cookieDuration;
 
-    public AuthService(IUserRepository userRepository, ReactiveMongoTemplate reactiveMongoTemplate, DbUsersService dbUsersService, PasswordEncoder passwordEncoder, JwtService jwtService) {
+    public AuthService(IUserRepository userRepository, DbUsersService dbUsersService, PasswordEncoder passwordEncoder, JwtService jwtService) {
         this.userRepository = userRepository;
-        this.reactiveMongoTemplate = reactiveMongoTemplate;
         this.dbUsersService = dbUsersService;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
@@ -60,8 +62,27 @@ public class AuthService {
                         return;
                     }
 
-                    sink.next(ResponseEntity.ok().body(new Resp<ResponseLogin>("Zalogoawano",
-                            new ResponseLogin("zalogowano", jwtService.generateAccessToken(userDto.getEmail(), userDto.getRole()), userDto.getRole()))));
+                    ResponseCookie refCookie = ResponseCookie.fromClientResponse("jwt", jwtService.generateRefreshToken(userDto.getEmail()))
+                            .httpOnly(true)
+                            .maxAge(cookieDuration)
+                            .build();
+
+
+
+                    sink.next(ResponseEntity
+                            .ok()
+                            .header("Set-Cookie", refCookie.toString())
+                            .body(
+                                    new Resp<ResponseLogin>(
+                                        "Zalogoawano",
+                                        new ResponseLogin(
+                                                "zalogowano",
+                                                jwtService.generateAccessToken(userDto.getEmail(), userDto.getRole()),
+                                                userDto.getRole()
+                                        )
+                                    )
+                            )
+                    );
                 });
     }
 

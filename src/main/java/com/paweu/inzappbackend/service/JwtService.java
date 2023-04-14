@@ -1,8 +1,6 @@
 package com.paweu.inzappbackend.service;
 
 import com.auth0.jwt.JWT;
-import com.auth0.jwt.JWTCreator;
-import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import org.springframework.beans.factory.annotation.Value;
@@ -37,12 +35,27 @@ public class JwtService {
                 .sign(algorithm);
     }
 
+    private String generate(String email, long expires, Algorithm algorithm){
+        return JWT.create()
+                .withSubject(email)
+                .withExpiresAt(new Date(new Date().getTime() + expires))
+                .sign(algorithm);
+    }
+
     public String generateAccessToken(String email, String role){
         return generate(
                 email,
                 role,
                 accessTokenExpires,
                 Algorithm.HMAC512(secretAccessToken)
+        );
+    }
+
+    public String generateRefreshToken(String email){
+        return generate(
+                email,
+                refTokenExpires,
+                Algorithm.HMAC512(secretRefreshToken)
         );
     }
 
@@ -53,13 +66,13 @@ public class JwtService {
                 .getSubject();
     }
 
-    public Boolean isValidAccess(String token, String email) {
+    public Boolean isValidToken(String token) {
         DecodedJWT decodedJWT = JWT.require(Algorithm.HMAC512(secretAccessToken))
                 .withClaimPresence("sub")
                 .build()
                 .verify(token);
 
-        return decodedJWT.getSubject().equalsIgnoreCase(email);
+        return !decodedJWT.getSubject().isBlank();
     }
 
 }
