@@ -1,5 +1,7 @@
 package com.paweu.inzappbackend.db.models;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
@@ -10,6 +12,7 @@ import org.springframework.data.mongodb.core.mapping.Field;
 public class UserModel {
 
     @Id
+    @JsonSerialize(using = ToStringSerializer.class)
     private ObjectId _id;
     @Indexed(unique = true)
     @Field
