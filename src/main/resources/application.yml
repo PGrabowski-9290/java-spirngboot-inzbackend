@@ -1,0 +1,16 @@
+spring:
+  data:
+    mongodb:
+      #database name
+      database: "testdb-java"
+      #for uri configuration
+      uri: mongodb://localhost:27017
+      auto-index-creation: true
+jwt:
+  secretToken: "secret-token-256-aes"
+  refreshToken: "refresh-token-256-aes"
+  #time set to expire tokens, provided in ms
+  expires:
+    accessToken: 1800000
+    refToken: 3600000
+

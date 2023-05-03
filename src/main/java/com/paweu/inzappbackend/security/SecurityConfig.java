@@ -5,8 +5,12 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
+import org.springframework.security.config.web.server.SecurityWebFiltersOrder;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.server.SecurityWebFilterChain;
+import org.springframework.security.web.server.authentication.AuthenticationWebFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.reactive.CorsConfigurationSource;
 import org.springframework.web.cors.reactive.CorsWebFilter;
@@ -15,6 +19,7 @@ import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
 @Configuration
 @EnableWebFluxSecurity
 public class SecurityConfig {
+
 
     public @Bean
     CorsConfigurationSource corsConfigurationSource() {
@@ -31,7 +36,7 @@ public class SecurityConfig {
     @Bean
     public CorsWebFilter corsWebFilter() {
         CorsConfiguration corsConfiguration = new CorsConfiguration();
-        corsConfiguration.setAllowCredentials(true);
+        corsConfiguration.setAllowCredentials(Boolean.TRUE);
         corsConfiguration.addAllowedHeader("*");
         corsConfiguration.addAllowedMethod("*");
         corsConfiguration.addAllowedOrigin("*");
@@ -42,13 +47,24 @@ public class SecurityConfig {
     }
 
     @Bean
-    protected SecurityWebFilterChain securityFilterChain(ServerHttpSecurity http,CorsConfigurationSource corsConfigurationSource){
+    public PasswordEncoder encoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    protected SecurityWebFilterChain securityFilterChain(ServerHttpSecurity http,
+                                                         CorsConfigurationSource corsConfigurationSource,
+                                                         AuthManager authManager, AuthConverter jwtAuthConverter){
+        AuthenticationWebFilter jwtFilter = new AuthenticationWebFilter(authManager);
+        jwtFilter.setServerAuthenticationConverter(jwtAuthConverter);
+
         return http
                 .authorizeExchange(auth -> {
-                    auth.pathMatchers(HttpMethod.POST, "/auth/login").permitAll();
+                    auth.pathMatchers(HttpMethod.POST, "/auth/login", "/auth/newAccount").permitAll();
                     auth.pathMatchers(HttpMethod.GET, "/auth/refresh").permitAll();
                     auth.anyExchange().authenticated();
                 })
+                .addFilterAt(jwtFilter, SecurityWebFiltersOrder.AUTHENTICATION)
                 .httpBasic().disable()
                 .formLogin().disable()
                 .csrf().disable()
