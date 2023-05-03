@@ -24,7 +24,7 @@ public class SettingsController {
     }
 
     @PutMapping("/update/{id}")
-    public Mono<ResponseEntity<Resp<Settings>>> update(@RequestParam UpdateRequest updateRequest, @PathVariable int id){
+    public Mono<ResponseEntity<Resp<Settings>>> update(@RequestBody UpdateRequest updateRequest, @PathVariable int id){
         return settingsService.updateSettings(updateRequest, id);
     }
 }
