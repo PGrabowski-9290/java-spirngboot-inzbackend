@@ -12,9 +12,9 @@ import org.springframework.web.reactive.result.method.annotation.ResponseEntityE
 @ControllerAdvice
 public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
 
-    //handle 401
-    @ExceptionHandler({TokenExpiredException.class})
-    public ResponseEntity<Object> handleTokenExpired(final TokenExpiredException ex){
+    //handle 401 by token expired
+    @ExceptionHandler({com.auth0.jwt.exceptions.TokenExpiredException.class})
+    public ResponseEntity<Object> handleTokenExpired(TokenExpiredException ex){
         logger.info("Token expired");
         final ApiError apiError = new ApiError(HttpStatus.UNAUTHORIZED, "token wygasł", ex.getMessage());
         return new ResponseEntity<Object>(apiError, new HttpHeaders(), apiError.getStatus());

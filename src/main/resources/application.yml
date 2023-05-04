@@ -11,6 +11,6 @@ jwt:
   refreshToken: "refresh-token-256-aes"
   #time set to expire tokens, provided in ms
   expires:
-    accessToken: 1800000
+    accessToken: 1800
     refToken: 3600000
 
