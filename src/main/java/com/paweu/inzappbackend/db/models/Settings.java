@@ -15,11 +15,26 @@ public class Settings {
     private ObjectId _id;
     @Field
     private int id;
-    private Company companyDetails;
-    private Contact contact;
-    private Person ownerDetails;
+    public Company companyDetails;
+    public Contact contact;
+    public Person ownerDetails;
 
     public Settings(){}
+
+    public Settings(ObjectId _id, int id, Company companyDetails, Contact contact, Person ownerDetails) {
+        this._id = _id;
+        this.id = id;
+        this.companyDetails = companyDetails;
+        this.contact = contact;
+        this.ownerDetails = ownerDetails;
+    }
+
+    public Settings(int id, Company companyDetails, Contact contact, Person ownerDetails) {
+        this.id = id;
+        this.companyDetails = companyDetails;
+        this.contact = contact;
+        this.ownerDetails = ownerDetails;
+    }
 
     public ObjectId get_id() {
         return _id;
@@ -60,4 +75,5 @@ public class Settings {
     public void setOwnerDetails(Person ownerDetails) {
         this.ownerDetails = ownerDetails;
     }
+
 }
