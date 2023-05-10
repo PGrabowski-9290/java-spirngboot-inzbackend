@@ -61,7 +61,7 @@ public class SecurityConfig {
         return http
                 .authorizeExchange(auth -> {
                     auth.pathMatchers(HttpMethod.POST, "/auth/login", "/auth/newAccount").permitAll();
-                    auth.pathMatchers(HttpMethod.GET, "/auth/refresh").permitAll();
+                    auth.pathMatchers(HttpMethod.GET, "/auth/refresh", "/models/get").permitAll();
                     auth.anyExchange().authenticated();
                 })
                 .addFilterAt(authFilter, SecurityWebFiltersOrder.AUTHENTICATION)
