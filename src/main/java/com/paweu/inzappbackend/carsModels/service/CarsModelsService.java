@@ -22,27 +22,22 @@ public class CarsModelsService {
 
     public Mono<ResponseEntity<Resp<List<?>>>> getList(String make, String year, String category){
         Query modelsQuery = new Query();
-        modelsQuery.fields().include("Models");
+        modelsQuery.fields().include("model");
         if(make != null){
-            Criteria makeCriteria = Criteria.where("Make").is(make);
+            Criteria makeCriteria = Criteria.where("make").is(make);
             modelsQuery.addCriteria(makeCriteria);
         }
         if(year != null){
-            Criteria yearCriteria = Criteria.where("Year").is(year);
+            Criteria yearCriteria = Criteria.where("year").is(year);
             modelsQuery.addCriteria(yearCriteria);
         }
         if(category != null){
-            Criteria categoryCriteria = Criteria.where("Category").is(category);
+            Criteria categoryCriteria = Criteria.where("category").is(category);
             modelsQuery.addCriteria(categoryCriteria);
         }
 
-        return mongoTemplate.find(modelsQuery, Models.class)
+        return mongoTemplate.findDistinct(modelsQuery, "model", "models" ,Models.class)
                 .onErrorResume(throwable -> Mono.error(new ResponseExceptionModel("Błąd w odczycie danych",500)))
-                .switchIfEmpty(Mono.just(new Models()))
-                .map(i -> {
-                    System.out.println(i.getModel());
-                    return i.getModel();
-                })
                 .collectList()
                 .flatMap(m -> Mono.just(ResponseEntity.ok().body(new Resp<>("Pobrano", m))));
     }
