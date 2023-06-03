@@ -10,11 +10,6 @@ import java.util.Date;
 
 @Service
 public class JwtService {
-//todo poczytaj o filtrach
-//todo OnePerRequestFilter
-    /**
-     * Filter stworzyć security, tutaj obsługa JWT - validacja, generowanie
-     */
 
     @Value(value = "${jwt.secretToken}")
     private String secretAccessToken;

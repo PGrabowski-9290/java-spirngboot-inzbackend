@@ -7,18 +7,19 @@ import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.util.Collection;
 
+
 @Document(collection = "models")
 public class Models {
     @Id
     private ObjectId _id;
     @Field
-    private String Make;
+    private String make;
     @Field
-    private String Year;
+    private String year;
     @Field
-    private String Model;
+    private String model;
     @Field
-    private Collection<String> Category;
+    private Collection<String> category;
 
     public Models(){}
 
@@ -31,34 +32,45 @@ public class Models {
     }
 
     public String getMake() {
-        return Make;
+        return make;
     }
 
     public void setMake(String make) {
-        Make = make;
+        this.make = make;
     }
 
     public String getYear() {
-        return Year;
+        return year;
     }
 
     public void setYear(String year) {
-        Year = year;
+        this.year = year;
     }
 
     public String getModel() {
-        return Model;
+        return model;
     }
 
     public void setModel(String model) {
-        Model = model;
+        this.model = model;
     }
 
     public Collection<String> getCategory() {
-        return Category;
+        return category;
     }
 
     public void setCategory(Collection<String> category) {
-        Category = category;
+        this.category = category;
+    }
+
+    @Override
+    public String toString() {
+        return "Models{" +
+                "_id=" + _id +
+                ", Make='" + make + '\'' +
+                ", Year='" + year + '\'' +
+                ", Model='" + model + '\'' +
+                ", Category=" + category +
+                '}';
     }
 }

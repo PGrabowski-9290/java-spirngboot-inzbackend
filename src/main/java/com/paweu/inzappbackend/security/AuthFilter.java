@@ -24,7 +24,7 @@ public class AuthFilter implements WebFilter {
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
         try {
-            String email = jwtService.getUserEmail(getAuthHeader(exchange));
+            String email = jwtService.getUserEmail(getJwtString(getAuthHeader(exchange)));
             Mono<DbUserDetails> user = dbUsersService.getUser(email).mapNotNull(DbUserDetails::new);
 
             return user.flatMap(u-> {
@@ -42,5 +42,9 @@ public class AuthFilter implements WebFilter {
 
     private String getAuthHeader(ServerWebExchange exchange) {
         return exchange.getRequest().getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
+    }
+
+    private String getJwtString(String headerVal){
+        return headerVal.substring(7);
     }
 }

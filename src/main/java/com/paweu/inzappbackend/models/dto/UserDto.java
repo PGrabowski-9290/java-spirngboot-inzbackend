@@ -9,7 +9,6 @@ public class UserDto {
 
     private String refreshToken = "";
     private String password;
-//todo dodanie flagi is Active rónież dla modelu response
 
     private Boolean isActive;
 

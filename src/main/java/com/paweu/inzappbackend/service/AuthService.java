@@ -2,12 +2,12 @@ package com.paweu.inzappbackend.service;
 
 import com.paweu.inzappbackend.auth.login.ResponseLogin;
 import com.paweu.inzappbackend.auth.newaccount.ResponseNewAccount;
-import com.paweu.inzappbackend.db.IUserRepository;
 import com.paweu.inzappbackend.db.models.UserModel;
 import com.paweu.inzappbackend.models.ReqResp.Resp;
 
 import com.paweu.inzappbackend.models.exception.ResponseExceptionModel;
 import io.netty.handler.codec.http.cookie.Cookie;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.http.HttpStatus;
@@ -21,15 +21,16 @@ import reactor.netty.http.Cookies;
 @Service
 public class AuthService {
 
-    private final IUserRepository userRepository;
+    @Autowired
+    private ReactiveMongoTemplate mongoTemplate;
     private final DbUsersService dbUsersService;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     @Value("${jwt.expires.refToken}")
     private long cookieDuration;
 
-    public AuthService(IUserRepository userRepository, DbUsersService dbUsersService, PasswordEncoder passwordEncoder, JwtService jwtService) {
-        this.userRepository = userRepository;
+    public AuthService(DbUsersService dbUsersService, PasswordEncoder passwordEncoder, JwtService jwtService) {
+
         this.dbUsersService = dbUsersService;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
@@ -43,7 +44,7 @@ public class AuthService {
         UserModel user = new UserModel(email,name, role);
         user.setPassword(passwordEncoder.encode(password));
 
-        return userRepository.save(user)
+        return mongoTemplate.save(user)
                 .onErrorResume(throwable -> Mono.error(new ResponseExceptionModel("Error on save user to db",400)))
                 .thenReturn(ResponseEntity.ok().body(new Resp<ResponseNewAccount>("Success", new ResponseNewAccount("Utworzono"))));
 
@@ -53,7 +54,7 @@ public class AuthService {
         if( email.isBlank() || password.isBlank()) {
             return Mono.error(new ResponseExceptionModel("Brak wymaganych pól", 400));
         }
-//TODO tu się błąd nie rzuca trza poprawić
+
         return dbUsersService.getUser(email)
             .onErrorResume(throwable -> Mono.error(new ResponseExceptionModel("Brak użytkownika o podanym adresie", 404)))
                 .handle((userDto, sink) -> {
